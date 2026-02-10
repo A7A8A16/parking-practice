@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>极速驾考：地平线挑战 - Speed Drills</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    :root {
+      --neon-blue: #00F2FF;
+      --speed-orange: #FF5E00;
+      --carbon-black: #1A1A1B;
+      --dark-bg: #0D0D0E;
+      --glow-blue: 0 0 20px rgba(0, 242, 255, 0.5), 0 0 40px rgba(0, 242, 255, 0.3);
+      --glow-orange: 0 0 20px rgba(255, 94, 0, 0.5), 0 0 40px rgba(255, 94, 0, 0.3);
+    }
+
+    body {
+      font-family: 'Orbitron', 'Microsoft YaHei', sans-serif;
+      overflow: hidden;
+      background: var(--dark-bg);
+    }
+
+    #game-container {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+
+    canvas {
+      display: block;
+    }
+
+    /* 加载界面 */
+    #loading {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--dark-bg);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      z-index: 200;
+      transition: opacity 0.5s;
+    }
+
+    #loading.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #loading p {
+      color: var(--neon-blue);
+      font-size: 1rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    .loader {
+      width: 60px;
+      height: 60px;
+      border: 4px solid var(--carbon-black);
+      border-top-color: var(--neon-blue);
+      border-right-color: var(--speed-orange);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 25px;
+      box-shadow: var(--glow-blue);
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* 主菜单样式 */
+    #menu {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background:
+        linear-gradient(135deg, rgba(13, 13, 14, 0.95) 0%, rgba(26, 26, 27, 0.9) 100%),
+        repeating-linear-gradient(
+          90deg,
+          transparent,
+          transparent 50px,
+          rgba(0, 242, 255, 0.03) 50px,
+          rgba(0, 242, 255, 0.03) 51px
+        ),
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 50px,
+          rgba(255, 94, 0, 0.03) 50px,
+          rgba(255, 94, 0, 0.03) 51px
+        );
+      z-index: 100;
+      transition: opacity 0.5s;
+      overflow: hidden;
+    }
+
+    #menu::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background:
+        radial-gradient(ellipse at 30% 20%, rgba(0, 242, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 80%, rgba(255, 94, 0, 0.08) 0%, transparent 50%);
+      animation: ambientMove 15s ease-in-out infinite;
+    }
+
+    @keyframes ambientMove {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(-5%, 5%); }
+    }
+
+    /* 方格旗装饰 */
+    #menu::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 8px;
+      background: repeating-linear-gradient(
+        90deg,
+        var(--carbon-black) 0px,
+        var(--carbon-black) 20px,
+        #fff 20px,
+        #fff 40px
+      );
+      opacity: 0.3;
+    }
+
+    #menu.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #menu h1 {
+      font-size: 3.5rem;
+      font-weight: 900;
+      color: #fff;
+      margin-bottom: 0.3rem;
+      text-transform: uppercase;
+      letter-spacing: 4px;
+      position: relative;
+      z-index: 1;
+      text-shadow:
+        0 0 10px var(--neon-blue),
+        0 0 30px rgba(0, 242, 255, 0.5),
+        2px 2px 0 var(--speed-orange);
+      font-style: italic;
+      transform: skewX(-5deg);
+    }
+
+    #menu .subtitle {
+      font-size: 1rem;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 3.5rem;
+      letter-spacing: 2px;
+      position: relative;
+      z-index: 1;
+      max-width: 500px;
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    .menu-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .menu-btn {
+      position: relative;
+      padding: 1.1rem 2.5rem 1.1rem 3.5rem;
+      font-size: 1.1rem;
+      font-weight: 700;
+      font-family: 'Orbitron', sans-serif;
+      border: none;
+      cursor: pointer;
+      min-width: 320px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #fff;
+      background: linear-gradient(135deg, var(--carbon-black) 0%, #2a2a2b 100%);
+      clip-path: polygon(15px 0, 100% 0, calc(100% - 15px) 100%, 0 100%);
+      transition: all 0.3s ease;
+      text-align: left;
+      overflow: hidden;
+    }
+
+    .menu-btn::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 6px;
+      background: repeating-linear-gradient(
+        180deg,
+        #e74c3c 0px,
+        #e74c3c 8px,
+        #fff 8px,
+        #fff 16px
+      );
+    }
+
+    .menu-btn::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border: 2px solid var(--neon-blue);
+      clip-path: polygon(15px 0, 100% 0, calc(100% - 15px) 100%, 0 100%);
+      opacity: 0.5;
+      transition: all 0.3s ease;
+    }
+
+    .menu-btn:hover {
+      transform: translateX(10px);
+      box-shadow: var(--glow-blue);
+    }
+
+    .menu-btn:hover::after {
+      opacity: 1;
+      box-shadow: inset 0 0 20px rgba(0, 242, 255, 0.3);
+    }
+
+    .menu-btn .btn-icon {
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .menu-btn .btn-icon svg {
+      width: 100%;
+      height: 100%;
+      fill: var(--neon-blue);
+      filter: drop-shadow(0 0 3px var(--neon-blue));
+    }
+
+    /* 错位排列效果 */
+    .menu-btn:nth-child(1) { transform: translateX(-20px); }
+    .menu-btn:nth-child(2) { transform: translateX(0px); }
+    .menu-btn:nth-child(3) { transform: translateX(20px); }
+    .menu-btn:nth-child(1):hover { transform: translateX(-10px); }
+    .menu-btn:nth-child(2):hover { transform: translateX(10px); }
+    .menu-btn:nth-child(3):hover { transform: translateX(30px); }
+
+    /* 版本号挂件 */
+    .version-badge {
+      position: absolute;
+      bottom: 25px;
+      right: 30px;
+      color: rgba(255, 255, 255, 0.3);
+      font-size: 0.75rem;
+      letter-spacing: 1px;
+      z-index: 1;
+    }
+
+    .version-badge span {
+      color: var(--neon-blue);
+    }
+
+    /* 游戏内 HUD */
+    #hud {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    #hud.active {
+      opacity: 1;
+    }
+
+    .top-bar {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      right: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: auto;
+    }
+
+    .scene-info h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #fff;
+      background: rgba(26, 26, 27, 0.9);
+      padding: 12px 25px;
+      clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+      border-left: 4px solid var(--neon-blue);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      text-shadow: 0 0 10px var(--neon-blue);
+    }
+
+    .icon-btn {
+      background: rgba(26, 26, 27, 0.9);
+      border: 2px solid var(--speed-orange);
+      width: 45px;
+      height: 45px;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 1.2rem;
+      color: var(--speed-orange);
+      clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+      transition: all 0.3s ease;
+    }
+
+    .icon-btn:hover {
+      background: var(--speed-orange);
+      color: #fff;
+      box-shadow: var(--glow-orange);
+    }
+
+    /* 仪表盘 - 赛车风格 */
+    .dashboard {
+      position: absolute;
+      bottom: 30px;
+      right: 30px;
+      background: linear-gradient(180deg, rgba(26, 26, 27, 0.95) 0%, rgba(13, 13, 14, 0.95) 100%);
+      padding: 20px 25px;
+      color: white;
+      display: flex;
+      gap: 25px;
+      clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+      border: 2px solid rgba(0, 242, 255, 0.3);
+    }
+
+    .dashboard::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--neon-blue), var(--speed-orange));
+    }
+
+    .dash-item {
+      text-align: center;
+      position: relative;
+    }
+
+    .dash-value {
+      font-size: 2.5rem;
+      font-weight: 900;
+      font-family: 'Orbitron', monospace;
+      color: var(--neon-blue);
+      text-shadow: 0 0 15px var(--neon-blue);
+      animation: digitPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes digitPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.8; }
+    }
+
+    .dash-label {
+      font-size: 0.7rem;
+      color: rgba(255, 255, 255, 0.5);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-top: 5px;
+    }
+
+    .dash-divider {
+      width: 2px;
+      background: linear-gradient(180deg, transparent, var(--neon-blue), transparent);
+    }
+
+    #gear-display {
+      color: var(--speed-orange);
+      text-shadow: 0 0 15px var(--speed-orange);
+    }
+
+    .controls-hint {
+      position: absolute;
+      bottom: 30px;
+      left: 30px;
+      background: rgba(26, 26, 27, 0.9);
+      padding: 18px 22px;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.85rem;
+      clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+      border: 1px solid rgba(0, 242, 255, 0.2);
+    }
+
+    .controls-hint p {
+      margin-bottom: 6px;
+    }
+
+    .controls-hint p:last-child {
+      margin-bottom: 0;
+    }
+
+    .key {
+      display: inline-block;
+      background: var(--carbon-black);
+      border: 1px solid var(--neon-blue);
+      border-radius: 4px;
+      padding: 3px 8px;
+      margin: 0 3px;
+      font-weight: 700;
+      font-family: 'Orbitron', monospace;
+      color: var(--neon-blue);
+      font-size: 0.75rem;
+      box-shadow: 0 2px 0 rgba(0, 242, 255, 0.3);
+    }
+
+    /* 结果弹窗 */
+    #result-modal {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      pointer-events: auto;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      z-index: 150;
+    }
+
+    #result-modal.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-content {
+      background: linear-gradient(180deg, var(--carbon-black) 0%, var(--dark-bg) 100%);
+      padding: 45px 50px;
+      text-align: center;
+      max-width: 420px;
+      width: 90%;
+      clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px);
+      border: 2px solid rgba(0, 242, 255, 0.3);
+      transform: translateY(20px);
+      transition: transform 0.3s;
+      position: relative;
+    }
+
+    .modal-content::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--neon-blue), var(--speed-orange));
+    }
+
+    #result-modal.active .modal-content {
+      transform: translateY(0);
+    }
+
+    #result-title {
+      font-size: 2rem;
+      font-weight: 900;
+      margin-bottom: 15px;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+    }
+
+    .success {
+      color: var(--neon-blue);
+      text-shadow: 0 0 20px var(--neon-blue);
+    }
+
+    .fail {
+      color: var(--speed-orange);
+      text-shadow: 0 0 20px var(--speed-orange);
+    }
+
+    #result-message {
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 35px;
+      font-size: 0.95rem;
+      letter-spacing: 1px;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    .modal-btn {
+      padding: 12px 30px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 700;
+      font-family: 'Orbitron', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: all 0.3s ease;
+      clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--neon-blue) 0%, #00c4cc 100%);
+      color: var(--dark-bg);
+    }
+
+    .btn-secondary {
+      background: var(--carbon-black);
+      color: #fff;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-primary:hover {
+      box-shadow: var(--glow-blue);
+      transform: translateX(5px);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--speed-orange);
+      color: var(--speed-orange);
+      transform: translateX(5px);
+    }
+
+    /* ========== 触屏虚拟操控系统 ========== */
+    #touch-controls {
+      display: none;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 45%;
+      pointer-events: none;
+      z-index: 50;
+    }
+
+    #touch-controls.active {
+      display: block;
+    }
+
+    /* 方向盘 - 左侧 */
+    .steering-wheel {
+      position: absolute;
+      left: 30px;
+      bottom: 30px;
+      width: 160px;
+      height: 160px;
+      pointer-events: auto;
+      opacity: 0.35;
+      transition: opacity 0.2s;
+    }
+
+    .steering-wheel.touching {
+      opacity: 0.85;
+    }
+
+    .steering-wheel-outer {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: radial-gradient(circle at center, transparent 40%, rgba(26, 26, 27, 0.9) 45%, rgba(26, 26, 27, 0.95) 100%);
+      border: 3px solid var(--neon-blue);
+      box-shadow: inset 0 0 30px rgba(0, 242, 255, 0.2), 0 0 20px rgba(0, 242, 255, 0.3);
+      position: relative;
+      transition: transform 0.1s ease-out, box-shadow 0.2s;
+    }
+
+    .steering-wheel.touching .steering-wheel-outer {
+      box-shadow: inset 0 0 30px rgba(0, 242, 255, 0.4), 0 0 30px rgba(0, 242, 255, 0.5);
+    }
+
+    /* 方向盘防滑纹理 */
+    .steering-wheel-outer::before {
+      content: '';
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      right: 5px;
+      bottom: 5px;
+      border-radius: 50%;
+      background: repeating-conic-gradient(
+        from 0deg,
+        rgba(0, 242, 255, 0.1) 0deg 10deg,
+        transparent 10deg 20deg
+      );
+    }
+
+    /* 方向盘中心 Logo */
+    .steering-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, var(--carbon-black) 0%, #2a2a2b 100%);
+      border-radius: 50%;
+      border: 2px solid var(--neon-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.6rem;
+      font-weight: 900;
+      color: var(--neon-blue);
+      text-shadow: 0 0 10px var(--neon-blue);
+      letter-spacing: 1px;
+    }
+
+    /* 方向盘指示器 */
+    .steering-indicator {
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 15px;
+      background: var(--speed-orange);
+      border-radius: 2px;
+      box-shadow: 0 0 10px var(--speed-orange);
+    }
+
+    /* 踏板区域 - 右侧 */
+    .pedals-area {
+      position: absolute;
+      right: 30px;
+      bottom: 30px;
+      display: flex;
+      gap: 15px;
+      pointer-events: auto;
+      opacity: 0.35;
+      transition: opacity 0.2s;
+    }
+
+    .pedals-area.touching {
+      opacity: 0.85;
+    }
+
+    .pedal {
+      width: 70px;
+      height: 120px;
+      background: linear-gradient(180deg, rgba(26, 26, 27, 0.95) 0%, rgba(13, 13, 14, 0.95) 100%);
+      border-radius: 8px;
+      position: relative;
+      transition: transform 0.1s, box-shadow 0.2s;
+      overflow: hidden;
+    }
+
+    .pedal::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent 0px,
+        transparent 8px,
+        rgba(255, 255, 255, 0.1) 8px,
+        rgba(255, 255, 255, 0.1) 10px
+      );
+    }
+
+    .pedal-label {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.6);
+      letter-spacing: 1px;
+    }
+
+    /* 油门踏板 */
+    .pedal-throttle {
+      border: 2px solid var(--neon-blue);
+    }
+
+    .pedal-throttle.active {
+      transform: translateY(5px);
+      box-shadow: 0 0 20px rgba(0, 242, 255, 0.5), inset 0 0 20px rgba(0, 242, 255, 0.3);
+    }
+
+    .pedal-throttle .pedal-label {
+      color: var(--neon-blue);
+    }
+
+    /* 刹车踏板 */
+    .pedal-brake {
+      width: 80px;
+      border: 2px solid var(--speed-orange);
+    }
+
+    .pedal-brake.active {
+      transform: translateY(5px);
+      box-shadow: 0 0 20px rgba(255, 94, 0, 0.5), inset 0 0 20px rgba(255, 94, 0, 0.3);
+    }
+
+    .pedal-brake .pedal-label {
+      color: var(--speed-orange);
+    }
+
+    /* R档切换按钮 */
+    .gear-toggle {
+      position: absolute;
+      right: 200px;
+      bottom: 100px;
+      width: 60px;
+      height: 80px;
+      background: linear-gradient(180deg, rgba(26, 26, 27, 0.95) 0%, rgba(13, 13, 14, 0.95) 100%);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 10px;
+      pointer-events: auto;
+      opacity: 0.35;
+      transition: opacity 0.2s, box-shadow 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-around;
+      padding: 8px 0;
+    }
+
+    .gear-toggle.touching {
+      opacity: 0.85;
+    }
+
+    .gear-toggle-indicator {
+      width: 36px;
+      height: 30px;
+      background: var(--carbon-black);
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      font-weight: 900;
+      transition: all 0.2s;
+    }
+
+    .gear-toggle-indicator.forward {
+      color: var(--neon-blue);
+      border: 2px solid var(--neon-blue);
+      box-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
+    }
+
+    .gear-toggle-indicator.reverse {
+      color: var(--speed-orange);
+      border: 2px solid var(--speed-orange);
+      box-shadow: 0 0 10px rgba(255, 94, 0, 0.5);
+    }
+
+    .gear-toggle-indicator.inactive {
+      color: rgba(255, 255, 255, 0.3);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      box-shadow: none;
+    }
+
+    /* 功能按钮区 */
+    .touch-actions {
+      position: absolute;
+      right: 20px;
+      top: 80px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: auto;
+      opacity: 0.4;
+      transition: opacity 0.2s;
+    }
+
+    .touch-actions:hover,
+    .touch-actions.touching {
+      opacity: 0.85;
+    }
+
+    .touch-action-btn {
+      width: 50px;
+      height: 50px;
+      background: rgba(26, 26, 27, 0.9);
+      border: 2px solid rgba(0, 242, 255, 0.5);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--neon-blue);
+      font-size: 1.2rem;
+      transition: all 0.2s;
+    }
+
+    .touch-action-btn:active {
+      transform: scale(0.95);
+      box-shadow: 0 0 15px rgba(0, 242, 255, 0.5);
+    }
+
+    .touch-action-btn svg {
+      width: 24px;
+      height: 24px;
+      fill: currentColor;
+    }
+
+    /* 触屏模式下隐藏键盘提示 */
+    #touch-controls.active ~ .controls-hint,
+    .touch-mode .controls-hint {
+      display: none;
+    }
+
+    /* 触屏模式下调整仪表盘位置 */
+    .touch-mode .dashboard {
+      bottom: auto;
+      top: 80px;
+      right: 50%;
+      transform: translateX(50%);
+    }
+
+    /* 手柄图标按钮 */
+    .gamepad-toggle {
+      background: rgba(26, 26, 27, 0.9);
+      border: 2px solid var(--neon-blue);
+      width: 45px;
+      height: 45px;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--neon-blue);
+      clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+      transition: all 0.3s ease;
+      margin-right: 10px;
+    }
+
+    .gamepad-toggle:hover,
+    .gamepad-toggle.active {
+      background: var(--neon-blue);
+      color: var(--dark-bg);
+      box-shadow: var(--glow-blue);
+    }
+
+    .gamepad-toggle svg {
+      width: 22px;
+      height: 22px;
+      fill: currentColor;
+    }
+
+    .top-bar-right {
+      display: flex;
+      align-items: center;
+    }
+
+  </style>
+</head>
+<body>
+  <!-- 游戏容器 -->
+  <div id="game-container"></div>
+
+  <!-- 加载界面 -->
+  <div id="loading">
+    <div class="loader"></div>
+    <p>Loading...</p>
+  </div>
+
+  <!-- 主菜单 -->
+  <div id="menu" class="hidden">
+    <h1>极速驾考</h1>
+    <p class="subtitle">精准掌控，拒绝压线。开启你的职业车手晋级之路。</p>
+    <div class="menu-buttons">
+      <button class="menu-btn" data-scene="reverse">
+        <span class="btn-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z" transform="rotate(180 12 12)"/><path d="M7 10l5-5 5 5H7zm0 4l5 5 5-5H7z"/></svg>
+        </span>
+        倒车入库
+      </button>
+      <button class="menu-btn" data-scene="parallel">
+        <span class="btn-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="2"/></svg>
+        </span>
+        侧方停车
+      </button>
+      <button class="menu-btn" data-scene="curve">
+        <span class="btn-icon">
+          <svg viewBox="0 0 24 24"><path d="M3 17h2v-7l4 4 4-4 4 4 4-7v10h2v-12l-6 8-4-4-4 4-6-8z"/></svg>
+        </span>
+        曲线行驶
+      </button>
+    </div>
+    <div class="version-badge">
+      <span>v1.0</span> | 车手档案
+    </div>
+  </div>
+
+  <!-- 游戏内 HUD -->
+  <div id="hud">
+    <div class="top-bar">
+      <div class="scene-info">
+        <h2 id="scene-title">倒车入库</h2>
+      </div>
+      <div class="top-bar-right">
+        <button id="gamepad-toggle" class="gamepad-toggle" title="触屏控制">
+          <svg viewBox="0 0 24 24"><path d="M15 7.5V2H9v5.5l3 3 3-3zM7.5 9H2v6h5.5l3-3-3-3zM9 16.5V22h6v-5.5l-3-3-3 3zM16.5 9l-3 3 3 3H22V9h-5.5z"/></svg>
+        </button>
+        <button id="back-to-menu" class="icon-btn" title="返回菜单">✕</button>
+      </div>
+    </div>
+
+    <div class="controls-hint">
+      <p><span class="key">W</span> <span class="key">S</span> 前进/后退</p>
+      <p><span class="key">A</span> <span class="key">D</span> 转向</p>
+      <p><span class="key">SPACE</span> 刹车</p>
+      <p><span class="key">V</span> 切换视角</p>
+    </div>
+
+    <div class="dashboard">
+      <div class="dash-item">
+        <div id="speed-value" class="dash-value">0</div>
+        <div class="dash-label">KM/H</div>
+      </div>
+      <div class="dash-divider"></div>
+      <div class="dash-item">
+        <div id="gear-display" class="dash-value">N</div>
+        <div class="dash-label">档位</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 触屏虚拟操控 -->
+  <div id="touch-controls">
+    <!-- 方向盘 -->
+    <div class="steering-wheel" id="steering-wheel">
+      <div class="steering-wheel-outer">
+        <div class="steering-indicator"></div>
+        <div class="steering-center">极速</div>
+      </div>
+    </div>
+
+    <!-- 档位切换 -->
+    <div class="gear-toggle" id="gear-toggle">
+      <div class="gear-toggle-indicator forward" id="gear-forward">D</div>
+      <div class="gear-toggle-indicator inactive" id="gear-reverse">R</div>
+    </div>
+
+    <!-- 踏板 -->
+    <div class="pedals-area" id="pedals-area">
+      <div class="pedal pedal-brake" id="pedal-brake">
+        <span class="pedal-label">BRAKE</span>
+      </div>
+      <div class="pedal pedal-throttle" id="pedal-throttle">
+        <span class="pedal-label">GAS</span>
+      </div>
+    </div>
+
+    <!-- 功能按钮 -->
+    <div class="touch-actions">
+      <button class="touch-action-btn" id="touch-view" title="切换视角">
+        <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+      </button>
+      <button class="touch-action-btn" id="touch-reset" title="重置位置">
+        <svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- 结果弹窗 -->
+  <div id="result-modal">
+    <div class="modal-content" id="result-content">
+      <h2 id="result-title">考试合格</h2>
+      <p id="result-message">恭喜你完成了倒车入库！</p>
+      <div class="modal-buttons">
+        <button id="retry-btn" class="modal-btn btn-primary">再试一次</button>
+        <button id="menu-btn" class="modal-btn btn-secondary">返回菜单</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
