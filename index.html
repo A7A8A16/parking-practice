@@ -581,85 +581,104 @@
       display: block;
     }
 
-    /* 方向盘 - 左侧 */
-    .steering-wheel {
+    /* 方向按键区 - 左侧 */
+    .steering-buttons {
       position: absolute;
-      left: 30px;
+      left: 20px;
       bottom: 30px;
-      width: 160px;
-      height: 160px;
+      display: flex;
+      gap: 15px;
       pointer-events: auto;
-      opacity: 0.35;
+      opacity: 0.4;
       transition: opacity 0.2s;
     }
 
-    .steering-wheel.touching {
-      opacity: 0.85;
+    .steering-buttons.touching {
+      opacity: 0.9;
     }
 
-    .steering-wheel-outer {
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      background: radial-gradient(circle at center, transparent 40%, rgba(26, 26, 27, 0.9) 45%, rgba(26, 26, 27, 0.95) 100%);
+    .steer-btn {
+      width: 90px;
+      height: 90px;
+      background: linear-gradient(180deg, rgba(26, 26, 27, 0.95) 0%, rgba(13, 13, 14, 0.95) 100%);
       border: 3px solid var(--neon-blue);
-      box-shadow: inset 0 0 30px rgba(0, 242, 255, 0.2), 0 0 20px rgba(0, 242, 255, 0.3);
-      position: relative;
-      transition: transform 0.1s ease-out, box-shadow 0.2s;
-    }
-
-    .steering-wheel.touching .steering-wheel-outer {
-      box-shadow: inset 0 0 30px rgba(0, 242, 255, 0.4), 0 0 30px rgba(0, 242, 255, 0.5);
-    }
-
-    /* 方向盘防滑纹理 */
-    .steering-wheel-outer::before {
-      content: '';
-      position: absolute;
-      top: 5px;
-      left: 5px;
-      right: 5px;
-      bottom: 5px;
-      border-radius: 50%;
-      background: repeating-conic-gradient(
-        from 0deg,
-        rgba(0, 242, 255, 0.1) 0deg 10deg,
-        transparent 10deg 20deg
-      );
-    }
-
-    /* 方向盘中心 Logo */
-    .steering-center {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 60px;
-      height: 60px;
-      background: linear-gradient(135deg, var(--carbon-black) 0%, #2a2a2b 100%);
-      border-radius: 50%;
-      border: 2px solid var(--neon-blue);
+      border-radius: 15px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.6rem;
-      font-weight: 900;
-      color: var(--neon-blue);
-      text-shadow: 0 0 10px var(--neon-blue);
-      letter-spacing: 1px;
+      transition: all 0.15s ease;
+      position: relative;
+      overflow: hidden;
     }
 
-    /* 方向盘指示器 */
-    .steering-indicator {
+    .steer-btn::before {
+      content: '';
       position: absolute;
-      top: 8px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 4px;
-      height: 15px;
-      background: var(--speed-orange);
-      border-radius: 2px;
-      box-shadow: 0 0 10px var(--speed-orange);
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(180deg, rgba(0, 242, 255, 0.1) 0%, transparent 100%);
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+
+    .steer-btn.active {
+      transform: scale(0.92);
+      background: linear-gradient(180deg, rgba(0, 242, 255, 0.3) 0%, rgba(26, 26, 27, 0.95) 100%);
+      box-shadow: 0 0 30px rgba(0, 242, 255, 0.6), inset 0 0 25px rgba(0, 242, 255, 0.3);
+      border-color: #fff;
+    }
+
+    .steer-btn.active::before {
+      opacity: 1;
+    }
+
+    .steer-btn svg {
+      width: 50px;
+      height: 50px;
+      fill: var(--neon-blue);
+      filter: drop-shadow(0 0 8px var(--neon-blue));
+      transition: all 0.15s;
+    }
+
+    .steer-btn.active svg {
+      fill: #fff;
+      filter: drop-shadow(0 0 15px #fff);
+      transform: scale(1.1);
+    }
+
+    .steer-btn-label {
+      position: absolute;
+      bottom: 6px;
+      font-size: 0.55rem;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.5);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .steer-btn.active .steer-btn-label {
+      color: var(--neon-blue);
+    }
+
+    /* 小屏幕方向键调整 */
+    @media (max-width: 600px) {
+      .steer-btn {
+        width: 75px;
+        height: 75px;
+      }
+
+      .steer-btn svg {
+        width: 40px;
+        height: 40px;
+      }
+
+      .steering-buttons {
+        left: 15px;
+        bottom: 20px;
+        gap: 10px;
+      }
     }
 
     /* 踏板区域 - 右侧 */
@@ -853,7 +872,42 @@
       bottom: auto;
       top: 80px;
       right: 50%;
-      transform: translateX(50%);
+      transform: translateX(50%) scale(0.75);
+      padding: 12px 18px;
+      gap: 15px;
+    }
+
+    .touch-mode .dash-value {
+      font-size: 1.8rem;
+    }
+
+    .touch-mode .dash-label {
+      font-size: 0.6rem;
+    }
+
+    /* 小屏幕响应式 */
+    @media (max-width: 600px) {
+      .touch-mode .dashboard {
+        transform: translateX(50%) scale(0.6);
+        top: 70px;
+      }
+
+      .touch-mode .top-bar {
+        top: 10px;
+        left: 10px;
+        right: 10px;
+      }
+
+      .touch-mode .scene-info h2 {
+        font-size: 0.9rem;
+        padding: 8px 15px;
+      }
+
+      .touch-mode .icon-btn,
+      .touch-mode .gamepad-toggle {
+        width: 38px;
+        height: 38px;
+      }
     }
 
     /* 手柄图标按钮 */
@@ -967,11 +1021,15 @@
 
   <!-- 触屏虚拟操控 -->
   <div id="touch-controls">
-    <!-- 方向盘 -->
-    <div class="steering-wheel" id="steering-wheel">
-      <div class="steering-wheel-outer">
-        <div class="steering-indicator"></div>
-        <div class="steering-center">极速</div>
+    <!-- 方向按键 -->
+    <div class="steering-buttons" id="steering-buttons">
+      <div class="steer-btn" id="steer-left">
+        <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+        <span class="steer-btn-label">LEFT</span>
+      </div>
+      <div class="steer-btn" id="steer-right">
+        <svg viewBox="0 0 24 24"><path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"/></svg>
+        <span class="steer-btn-label">RIGHT</span>
       </div>
     </div>
 

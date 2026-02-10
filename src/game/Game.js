@@ -127,7 +127,9 @@ export class Game {
   setupTouchControls() {
     const touchControls = document.getElementById('touch-controls');
     const gamepadToggle = document.getElementById('gamepad-toggle');
-    const steeringWheel = document.getElementById('steering-wheel');
+    const steerLeft = document.getElementById('steer-left');
+    const steerRight = document.getElementById('steer-right');
+    const steeringButtons = document.getElementById('steering-buttons');
     const pedalThrottle = document.getElementById('pedal-throttle');
     const pedalBrake = document.getElementById('pedal-brake');
     const gearToggle = document.getElementById('gear-toggle');
@@ -150,39 +152,40 @@ export class Game {
       }
     });
 
-    // 方向盘控制
-    let steeringStartX = 0;
-    let steeringStartAngle = 0;
-    const maxSteeringAngle = 120;
-
-    steeringWheel?.addEventListener('touchstart', (e) => {
+    // 左转按键
+    steerLeft?.addEventListener('touchstart', (e) => {
       e.preventDefault();
-      steeringWheel.classList.add('touching');
-      const touch = e.touches[0];
-      steeringStartX = touch.clientX;
-      steeringStartAngle = this.steeringAngle;
-    });
-
-    steeringWheel?.addEventListener('touchmove', (e) => {
-      e.preventDefault();
-      if (!this.isPlaying) return;
-      const touch = e.touches[0];
-      const deltaX = touch.clientX - steeringStartX;
-      this.steeringAngle = Math.max(-maxSteeringAngle, Math.min(maxSteeringAngle, steeringStartAngle + deltaX * 0.8));
-
-      // 更新方向盘视觉旋转
-      const wheelOuter = steeringWheel.querySelector('.steering-wheel-outer');
-      if (wheelOuter) {
-        wheelOuter.style.transform = `rotate(${this.steeringAngle}deg)`;
+      steerLeft.classList.add('active');
+      steeringButtons?.classList.add('touching');
+      if (this.isPlaying) {
+        this.car.setSteering(1);
       }
-
-      // 转换为 -1 到 1 的转向值
-      const steeringValue = -this.steeringAngle / maxSteeringAngle;
-      this.car.setSteering(steeringValue);
     });
 
-    steeringWheel?.addEventListener('touchend', () => {
-      steeringWheel.classList.remove('touching');
+    steerLeft?.addEventListener('touchend', () => {
+      steerLeft.classList.remove('active');
+      steeringButtons?.classList.remove('touching');
+      if (this.isPlaying) {
+        this.car.setSteering(0);
+      }
+    });
+
+    // 右转按键
+    steerRight?.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      steerRight.classList.add('active');
+      steeringButtons?.classList.add('touching');
+      if (this.isPlaying) {
+        this.car.setSteering(-1);
+      }
+    });
+
+    steerRight?.addEventListener('touchend', () => {
+      steerRight.classList.remove('active');
+      steeringButtons?.classList.remove('touching');
+      if (this.isPlaying) {
+        this.car.setSteering(0);
+      }
     });
 
     // 油门踏板
