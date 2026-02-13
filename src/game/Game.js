@@ -105,12 +105,7 @@ export class Game {
 
     // 隐藏加载界面，显示菜单
     document.getElementById('loading').classList.add('hidden');
-    document.getElementById('menu').classList.remove('hidden');
-
-    // 触发彩带效果
-    if (typeof window.createConfetti === 'function') {
-      setTimeout(() => window.createConfetti(), 100);
-    }
+    this.menu.show(); // 使用 Menu.show() 方法，会自动触发彩带和音乐
 
     // 开始渲染循环
     this.animate();

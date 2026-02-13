@@ -1,6 +1,6 @@
 {
   "name": "parking-practice",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "3D 驾校科目二练习模拟游戏",
   "type": "module",
   "scripts": {

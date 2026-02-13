@@ -164,22 +164,52 @@
       text-shadow: 0 2px 30px rgba(220, 20, 60, 0.15);
     }
 
-    /* 祝福语 */
+    /* 祝福语 - 霓虹灯彩虹效果 */
     .blessing {
-      font-size: 1.3rem;
-      font-weight: 300;
+      font-size: 2rem;
+      font-weight: 700;
       font-family: 'Noto Serif SC', serif;
       color: var(--elegant-gold);
       margin-bottom: 50px;
-      letter-spacing: 8px;
+      letter-spacing: 12px;
       position: relative;
       z-index: 1;
-      animation: breathe 3s ease-in-out infinite;
+      background: linear-gradient(
+        90deg,
+        #ff0080,
+        #ff8c00,
+        #ffd700,
+        #00ff00,
+        #00bfff,
+        #8a2be2,
+        #ff0080
+      );
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 0 30px rgba(255, 0, 128, 0.5),
+                   0 0 60px rgba(255, 140, 0, 0.3),
+                   0 0 90px rgba(0, 191, 255, 0.2);
+      animation: rainbowFlow 3s linear infinite, neonGlow 2s ease-in-out infinite;
+      filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8));
     }
 
-    @keyframes breathe {
-      0%, 100% { opacity: 0.85; transform: scale(1); }
-      50% { opacity: 1; transform: scale(1.02); }
+    @keyframes rainbowFlow {
+      0% { background-position: 0% center; }
+      100% { background-position: 200% center; }
+    }
+
+    @keyframes neonGlow {
+      0%, 100% {
+        filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8))
+                drop-shadow(0 0 20px rgba(255, 0, 128, 0.6));
+      }
+      50% {
+        filter: drop-shadow(0 0 20px rgba(255, 215, 0, 1))
+                drop-shadow(0 0 40px rgba(255, 0, 128, 0.8))
+                drop-shadow(0 0 60px rgba(0, 191, 255, 0.6));
+      }
     }
 
     #menu .subtitle {
@@ -371,46 +401,41 @@
 
     .confetti {
       position: absolute;
-      width: 8px;
-      height: 16px;
+      width: 15px;
+      height: 40px;
       background: #DC143C;
-      top: -30px;
+      top: -50px;
       opacity: 1;
       will-change: transform, opacity;
+      border-radius: 3px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     }
 
     /* 下落动画 - 包含重力和横向摆动 */
     @keyframes confettiFall {
       0% {
-        transform: translateY(0) translateX(0) rotateZ(var(--start-rotation)) rotateX(0deg);
+        transform: translateY(0) translateX(0) rotateZ(var(--start-rotation));
+        opacity: 1;
+      }
+      15% {
+        transform: translateY(15vh) translateX(calc(var(--drift) * 0.1)) rotateZ(calc(var(--start-rotation) + 54deg));
+      }
+      30% {
+        transform: translateY(30vh) translateX(calc(var(--drift) * 0.25)) rotateZ(calc(var(--start-rotation) + 108deg));
+      }
+      50% {
+        transform: translateY(50vh) translateX(calc(var(--drift) * 0.5)) rotateZ(calc(var(--start-rotation) + 180deg));
+      }
+      70% {
+        transform: translateY(70vh) translateX(calc(var(--drift) * 0.75)) rotateZ(calc(var(--start-rotation) + 252deg));
+      }
+      85% {
+        transform: translateY(85vh) translateX(calc(var(--drift) * 0.9)) rotateZ(calc(var(--start-rotation) + 306deg));
         opacity: 1;
       }
       100% {
-        transform: translateY(110vh) translateX(var(--drift)) rotateZ(var(--end-rotation)) rotateX(var(--flip));
+        transform: translateY(110vh) translateX(var(--drift)) rotateZ(var(--end-rotation));
         opacity: 0;
-      }
-    }
-
-    /* 横向摆动动画 */
-    @keyframes confettiSwing {
-      0%, 100% {
-        transform: translateX(0);
-      }
-      25% {
-        transform: translateX(var(--swing-1));
-      }
-      75% {
-        transform: translateX(var(--swing-2));
-      }
-    }
-
-    /* 旋转摆动动画 */
-    @keyframes confettiSpin {
-      0% {
-        transform: rotateY(0deg) rotateX(0deg);
-      }
-      100% {
-        transform: rotateY(var(--spin-y)) rotateX(var(--spin-x));
       }
     }
 
@@ -1071,6 +1096,11 @@
   <!-- 彩带容器 -->
   <div id="confetti-container"></div>
 
+  <!-- 主页背景音乐 -->
+  <audio id="menu-bgm" loop>
+    <source src="/menu-bgm.mp3" type="audio/mpeg">
+  </audio>
+
   <!-- 游戏容器 -->
   <div id="game-container"></div>
 
@@ -1113,7 +1143,7 @@
     </div>
 
     <div class="version-badge">
-      <span>马年特别版 v1.0.1</span>
+      <span>马年特别版 v1.0.2</span>
     </div>
 
     <!-- 右下角联系栏 -->
@@ -1239,8 +1269,8 @@
         '#FFA500', // 亮橙
       ];
 
-      const confettiCount = 120; // 彩带数量（增加密度）
-      const baseDuration = 2000; // 基础持续时间（毫秒）
+      const confettiCount = 200; // 彩带数量（大幅增加密度）
+      const baseDuration = 3000; // 基础持续时间（毫秒）- 3秒基准
 
       console.log(`🎊 正在创建 ${confettiCount} 个彩带...`);
 
@@ -1255,66 +1285,57 @@
         const startX = Math.random() * 100;
         confetti.style.left = startX + '%';
 
-        // 随机大小
-        const width = 5 + Math.random() * 10;
-        const height = width * (1.5 + Math.random() * 1.5);
+        // 随机大小和形状（有些是正方形，有些是长条）
+        const shapeType = Math.random();
+        let width, height;
+
+        if (shapeType < 0.3) {
+          // 30% 概率：正方形或接近正方形
+          width = 8 + Math.random() * 12; // 8-20px
+          height = width * (0.8 + Math.random() * 0.4); // 0.8-1.2倍
+        } else {
+          // 70% 概率：长条彩带
+          width = 6 + Math.random() * 14; // 6-20px
+          height = width * (2.5 + Math.random() * 2.5); // 2.5-5倍，更长
+        }
+
         confetti.style.width = width + 'px';
         confetti.style.height = height + 'px';
 
         // 随机起始高度（让它们不是同时从顶部出现）
-        const startY = -50 - Math.random() * 100;
+        const startY = -150 - Math.random() * 150; // 更高的起始位置
         confetti.style.top = startY + 'px';
 
         // 随机延迟（更大的随机范围）
-        const delay = Math.random() * 600;
+        const delay = Math.random() * 1200; // 0-1.2秒延迟
         confetti.style.animationDelay = delay + 'ms';
 
-        // 随机下落速度（1.5秒到3秒）
-        const duration = baseDuration * (0.75 + Math.random() * 0.75);
+        // 随机下落速度（2秒到5秒）
+        const duration = baseDuration * (0.7 + Math.random() * 1); // 2.1-5.1秒
 
-        // 随机横向漂移（更大的范围）
-        const drift = (Math.random() - 0.5) * 300;
+        // 随机横向漂移（大幅增加飘散范围）
+        const drift = (Math.random() - 0.5) * 800; // ±400px 横向漂移
         confetti.style.setProperty('--drift', drift + 'px');
 
         // 随机起始和结束旋转角度
         const startRotation = Math.random() * 360;
-        const endRotation = startRotation + (Math.random() - 0.5) * 1080;
+        const endRotation = startRotation + (Math.random() - 0.5) * 2160; // 最多6圈旋转
         confetti.style.setProperty('--start-rotation', startRotation + 'deg');
         confetti.style.setProperty('--end-rotation', endRotation + 'deg');
 
-        // 随机翻转效果
-        const flip = Math.random() * 720 - 360;
-        confetti.style.setProperty('--flip', flip + 'deg');
-
-        // 随机摆动幅度
-        const swing1 = (Math.random() - 0.5) * 60;
-        const swing2 = (Math.random() - 0.5) * 60;
-        confetti.style.setProperty('--swing-1', swing1 + 'px');
-        confetti.style.setProperty('--swing-2', swing2 + 'px');
-
-        // 随机3D旋转
-        const spinY = Math.random() * 1080 - 540;
-        const spinX = Math.random() * 720 - 360;
-        confetti.style.setProperty('--spin-y', spinY + 'deg');
-        confetti.style.setProperty('--spin-x', spinX + 'deg');
-
-        // 应用多重动画
-        confetti.style.animation = `
-          confettiFall ${duration}ms ease-in forwards,
-          confettiSwing ${duration * 0.3}ms ease-in-out infinite,
-          confettiSpin ${duration * 0.5}ms linear infinite
-        `;
+        // 应用动画（使用 ease-out 模拟重力加速）
+        confetti.style.animation = `confettiFall ${duration}ms cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards`;
 
         container.appendChild(confetti);
       }
 
       console.log(`✅ 彩带创建完成，已添加 ${confettiCount} 个元素`);
 
-      // 动画结束后清理（取最长时间）
+      // 动画结束后清理（取最长时间：最长延迟 + 最长动画时长 + 缓冲）
       setTimeout(() => {
         container.innerHTML = '';
         console.log('🧹 彩带已清理');
-      }, baseDuration * 1.5 + 800);
+      }, 1200 + baseDuration * 1.7 + 1000); // 1.2s延迟 + 5.1s动画 + 1s缓冲 ≈ 7.3s
     }
 
     // 暴露给全局，供游戏代码调用
