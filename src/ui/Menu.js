@@ -19,6 +19,10 @@ export class Menu {
 
   show() {
     this.element.classList.remove('hidden');
+    // 触发彩带效果
+    if (typeof window.createConfetti === 'function') {
+      setTimeout(() => window.createConfetti(), 100);
+    }
   }
 
   hide() {

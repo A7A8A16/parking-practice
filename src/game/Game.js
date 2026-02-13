@@ -107,6 +107,11 @@ export class Game {
     document.getElementById('loading').classList.add('hidden');
     document.getElementById('menu').classList.remove('hidden');
 
+    // 触发彩带效果
+    if (typeof window.createConfetti === 'function') {
+      setTimeout(() => window.createConfetti(), 100);
+    }
+
     // 开始渲染循环
     this.animate();
   }

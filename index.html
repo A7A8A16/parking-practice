@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>极速驾考：地平线挑战 - Speed Drills</title>
+  <title>飞驰人生3.5 - 马年春节特别版</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
 
     * {
       margin: 0;
@@ -21,6 +22,13 @@
       --dark-bg: #0D0D0E;
       --glow-blue: 0 0 20px rgba(0, 242, 255, 0.5), 0 0 40px rgba(0, 242, 255, 0.3);
       --glow-orange: 0 0 20px rgba(255, 94, 0, 0.5), 0 0 40px rgba(255, 94, 0, 0.3);
+
+      /* 春节主题色 - 仅用于菜单 */
+      --chinese-red: #DC143C;
+      --elegant-gold: #D4AF37;
+      --cream-bg: #FAF9F6;
+      --glow-red: 0 0 30px rgba(220, 20, 60, 0.3);
+      --glow-gold: 0 0 30px rgba(212, 175, 55, 0.4);
     }
 
     body {
@@ -83,7 +91,7 @@
       to { transform: rotate(360deg); }
     }
 
-    /* 主菜单样式 */
+    /* 主菜单样式 - 春节特别版 */
     #menu {
       position: absolute;
       top: 0;
@@ -94,60 +102,33 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      background:
-        linear-gradient(135deg, rgba(13, 13, 14, 0.95) 0%, rgba(26, 26, 27, 0.9) 100%),
-        repeating-linear-gradient(
-          90deg,
-          transparent,
-          transparent 50px,
-          rgba(0, 242, 255, 0.03) 50px,
-          rgba(0, 242, 255, 0.03) 51px
-        ),
-        repeating-linear-gradient(
-          0deg,
-          transparent,
-          transparent 50px,
-          rgba(255, 94, 0, 0.03) 50px,
-          rgba(255, 94, 0, 0.03) 51px
-        );
+      background: linear-gradient(180deg, var(--cream-bg) 0%, #F5F5F0 100%);
       z-index: 100;
       transition: opacity 0.5s;
       overflow: hidden;
     }
 
+    /* 顶部装饰渐变 */
     #menu::before {
       content: '';
       position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background:
-        radial-gradient(ellipse at 30% 20%, rgba(0, 242, 255, 0.1) 0%, transparent 50%),
-        radial-gradient(ellipse at 70% 80%, rgba(255, 94, 0, 0.08) 0%, transparent 50%);
-      animation: ambientMove 15s ease-in-out infinite;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 200px;
+      background: linear-gradient(180deg, rgba(220, 20, 60, 0.03) 0%, transparent 100%);
+      pointer-events: none;
     }
 
-    @keyframes ambientMove {
-      0%, 100% { transform: translate(0, 0); }
-      50% { transform: translate(-5%, 5%); }
-    }
-
-    /* 方格旗装饰 */
+    /* 底部金色装饰线 */
     #menu::after {
       content: '';
       position: absolute;
       bottom: 0;
       left: 0;
       right: 0;
-      height: 8px;
-      background: repeating-linear-gradient(
-        90deg,
-        var(--carbon-black) 0px,
-        var(--carbon-black) 20px,
-        #fff 20px,
-        #fff 40px
-      );
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--elegant-gold), transparent);
       opacity: 0.3;
     }
 
@@ -156,76 +137,105 @@
       pointer-events: none;
     }
 
-    #menu h1 {
-      font-size: 3.5rem;
-      font-weight: 900;
-      color: #fff;
-      margin-bottom: 0.3rem;
-      text-transform: uppercase;
-      letter-spacing: 4px;
+    /* emoji 装饰图标 */
+    .menu-emoji {
+      font-size: 6rem;
+      margin-bottom: 30px;
       position: relative;
       z-index: 1;
-      text-shadow:
-        0 0 10px var(--neon-blue),
-        0 0 30px rgba(0, 242, 255, 0.5),
-        2px 2px 0 var(--speed-orange);
-      font-style: italic;
-      transform: skewX(-5deg);
+      animation: floatEmoji 4s ease-in-out infinite;
+      filter: drop-shadow(0 8px 24px rgba(220, 20, 60, 0.15));
+    }
+
+    @keyframes floatEmoji {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-15px) rotate(5deg); }
+    }
+
+    #menu h1 {
+      font-size: 2.8rem;
+      font-weight: 700;
+      font-family: 'Noto Serif SC', serif;
+      color: var(--chinese-red);
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
+      letter-spacing: 12px;
+      text-shadow: 0 2px 30px rgba(220, 20, 60, 0.15);
+    }
+
+    /* 祝福语 */
+    .blessing {
+      font-size: 1.3rem;
+      font-weight: 300;
+      font-family: 'Noto Serif SC', serif;
+      color: var(--elegant-gold);
+      margin-bottom: 50px;
+      letter-spacing: 8px;
+      position: relative;
+      z-index: 1;
+      animation: breathe 3s ease-in-out infinite;
+    }
+
+    @keyframes breathe {
+      0%, 100% { opacity: 0.85; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.02); }
     }
 
     #menu .subtitle {
-      font-size: 1rem;
-      color: rgba(255, 255, 255, 0.7);
-      margin-bottom: 3.5rem;
-      letter-spacing: 2px;
+      font-size: 0.95rem;
+      font-family: 'Noto Sans SC', sans-serif;
+      color: rgba(139, 0, 0, 0.6);
+      margin-bottom: 50px;
+      letter-spacing: 3px;
       position: relative;
       z-index: 1;
       max-width: 500px;
       text-align: center;
-      line-height: 1.6;
+      line-height: 1.8;
+      font-weight: 300;
     }
 
     .menu-buttons {
       display: flex;
       flex-direction: column;
-      gap: 1.2rem;
+      gap: 18px;
       position: relative;
       z-index: 1;
     }
 
     .menu-btn {
       position: relative;
-      padding: 1.1rem 2.5rem 1.1rem 3.5rem;
-      font-size: 1.1rem;
-      font-weight: 700;
-      font-family: 'Orbitron', sans-serif;
-      border: none;
+      padding: 20px 50px;
+      font-size: 1rem;
+      font-weight: 500;
+      font-family: 'Noto Sans SC', sans-serif;
+      border: 2px solid rgba(220, 20, 60, 0.2);
       cursor: pointer;
       min-width: 320px;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      color: #fff;
-      background: linear-gradient(135deg, var(--carbon-black) 0%, #2a2a2b 100%);
-      clip-path: polygon(15px 0, 100% 0, calc(100% - 15px) 100%, 0 100%);
-      transition: all 0.3s ease;
-      text-align: left;
+      letter-spacing: 4px;
+      color: var(--chinese-red);
+      background: rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 16px;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      text-align: center;
       overflow: hidden;
+      box-shadow: 0 4px 24px rgba(220, 20, 60, 0.08);
     }
 
+    /* 按钮内金色装饰线 */
     .menu-btn::before {
       content: '';
       position: absolute;
       left: 0;
       top: 0;
       bottom: 0;
-      width: 6px;
-      background: repeating-linear-gradient(
-        180deg,
-        #e74c3c 0px,
-        #e74c3c 8px,
-        #fff 8px,
-        #fff 16px
-      );
+      width: 4px;
+      background: linear-gradient(180deg, var(--elegant-gold), var(--chinese-red));
+      opacity: 0;
+      transition: opacity 0.4s;
     }
 
     .menu-btn::after {
@@ -235,62 +245,173 @@
       left: 0;
       right: 0;
       bottom: 0;
-      border: 2px solid var(--neon-blue);
-      clip-path: polygon(15px 0, 100% 0, calc(100% - 15px) 100%, 0 100%);
-      opacity: 0.5;
-      transition: all 0.3s ease;
+      background: linear-gradient(135deg, rgba(220, 20, 60, 0.05), rgba(212, 175, 55, 0.05));
+      opacity: 0;
+      transition: all 0.4s;
     }
 
     .menu-btn:hover {
-      transform: translateX(10px);
-      box-shadow: var(--glow-blue);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(220, 20, 60, 0.2);
+      border-color: var(--chinese-red);
+      background: rgba(255, 255, 255, 0.85);
+    }
+
+    .menu-btn:hover::before {
+      opacity: 1;
     }
 
     .menu-btn:hover::after {
       opacity: 1;
-      box-shadow: inset 0 0 20px rgba(0, 242, 255, 0.3);
     }
 
     .menu-btn .btn-icon {
-      position: absolute;
-      left: 18px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 24px;
-      height: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: none;
     }
-
-    .menu-btn .btn-icon svg {
-      width: 100%;
-      height: 100%;
-      fill: var(--neon-blue);
-      filter: drop-shadow(0 0 3px var(--neon-blue));
-    }
-
-    /* 错位排列效果 */
-    .menu-btn:nth-child(1) { transform: translateX(-20px); }
-    .menu-btn:nth-child(2) { transform: translateX(0px); }
-    .menu-btn:nth-child(3) { transform: translateX(20px); }
-    .menu-btn:nth-child(1):hover { transform: translateX(-10px); }
-    .menu-btn:nth-child(2):hover { transform: translateX(10px); }
-    .menu-btn:nth-child(3):hover { transform: translateX(30px); }
 
     /* 版本号挂件 */
     .version-badge {
       position: absolute;
       bottom: 25px;
-      right: 30px;
-      color: rgba(255, 255, 255, 0.3);
-      font-size: 0.75rem;
-      letter-spacing: 1px;
+      left: 30px;
+      color: rgba(139, 0, 0, 0.35);
+      font-size: 0.7rem;
+      font-family: 'Noto Sans SC', sans-serif;
+      letter-spacing: 2px;
       z-index: 1;
+      font-weight: 300;
     }
 
     .version-badge span {
-      color: var(--neon-blue);
+      color: var(--elegant-gold);
+      font-weight: 500;
+    }
+
+    /* 右下角联系栏 */
+    .contact-float {
+      position: absolute;
+      bottom: 25px;
+      right: 30px;
+      background: rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      padding: 12px 20px;
+      border-radius: 12px;
+      border: 1px solid rgba(220, 20, 60, 0.1);
+      z-index: 1;
+      transition: all 0.3s ease;
+    }
+
+    .contact-float:hover {
+      background: rgba(255, 255, 255, 0.7);
+      box-shadow: 0 8px 32px rgba(220, 20, 60, 0.12);
+    }
+
+    .contact-float p {
+      font-size: 0.7rem;
+      font-family: 'Noto Sans SC', sans-serif;
+      color: rgba(139, 0, 0, 0.5);
+      margin-bottom: 4px;
+      letter-spacing: 1px;
+      font-weight: 300;
+    }
+
+    .contact-float a {
+      font-size: 0.75rem;
+      font-family: 'Noto Sans SC', sans-serif;
+      color: var(--chinese-red);
+      text-decoration: none;
+      letter-spacing: 0.5px;
+      font-weight: 400;
+      transition: color 0.3s;
+    }
+
+    .contact-float a:hover {
+      color: var(--elegant-gold);
+    }
+
+    /* 小屏幕响应 */
+    @media (max-width: 600px) {
+      .menu-emoji {
+        font-size: 4rem;
+      }
+
+      #menu h1 {
+        font-size: 2rem;
+        letter-spacing: 8px;
+      }
+
+      .blessing {
+        font-size: 1rem;
+        letter-spacing: 5px;
+      }
+
+      .menu-btn {
+        min-width: 280px;
+        font-size: 0.9rem;
+      }
+
+      .contact-float {
+        font-size: 0.65rem;
+        padding: 10px 16px;
+      }
+    }
+
+    /* ========== 彩带飘落效果 ========== */
+    #confetti-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 9999;
+      overflow: hidden;
+    }
+
+    .confetti {
+      position: absolute;
+      width: 8px;
+      height: 16px;
+      background: #DC143C;
+      top: -30px;
+      opacity: 1;
+      will-change: transform, opacity;
+    }
+
+    /* 下落动画 - 包含重力和横向摆动 */
+    @keyframes confettiFall {
+      0% {
+        transform: translateY(0) translateX(0) rotateZ(var(--start-rotation)) rotateX(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(110vh) translateX(var(--drift)) rotateZ(var(--end-rotation)) rotateX(var(--flip));
+        opacity: 0;
+      }
+    }
+
+    /* 横向摆动动画 */
+    @keyframes confettiSwing {
+      0%, 100% {
+        transform: translateX(0);
+      }
+      25% {
+        transform: translateX(var(--swing-1));
+      }
+      75% {
+        transform: translateX(var(--swing-2));
+      }
+    }
+
+    /* 旋转摆动动画 */
+    @keyframes confettiSpin {
+      0% {
+        transform: rotateY(0deg) rotateX(0deg);
+      }
+      100% {
+        transform: rotateY(var(--spin-y)) rotateX(var(--spin-x));
+      }
     }
 
     /* 游戏内 HUD */
@@ -947,6 +1068,9 @@
   </style>
 </head>
 <body>
+  <!-- 彩带容器 -->
+  <div id="confetti-container"></div>
+
   <!-- 游戏容器 -->
   <div id="game-container"></div>
 
@@ -958,8 +1082,15 @@
 
   <!-- 主菜单 -->
   <div id="menu" class="hidden">
-    <h1>极速驾考</h1>
-    <p class="subtitle">精准掌控，拒绝压线。开启你的职业车手晋级之路。</p>
+    <!-- 春节装饰图标 -->
+    <div class="menu-emoji">🐎</div>
+
+    <!-- 祝福语 -->
+    <p class="blessing">大桥祝您新春愉快！</p>
+
+    <h1>飞驰人生3.5</h1>
+    <p class="subtitle">精准掌控，拒绝压线<br>马年新春，驰骋前行</p>
+
     <div class="menu-buttons">
       <button class="menu-btn" data-scene="reverse">
         <span class="btn-icon">
@@ -980,8 +1111,15 @@
         曲线行驶
       </button>
     </div>
+
     <div class="version-badge">
-      <span>v1.0</span> | 车手档案
+      <span>马年特别版 v1.0.1</span>
+    </div>
+
+    <!-- 右下角联系栏 -->
+    <div class="contact-float">
+      <p>联系我</p>
+      <a href="mailto:williamff7@outlook.com">williamff7@outlook.com</a>
     </div>
   </div>
 
@@ -1073,5 +1211,115 @@
   </div>
 
   <script type="module" src="/src/main.js"></script>
+  <script>
+    console.log('🎊 彩带脚本开始加载...');
+
+    // 彩带飘落效果
+    function createConfetti() {
+      console.log('🎊 createConfetti 被调用');
+      const container = document.getElementById('confetti-container');
+      if (!container) {
+        console.error('❌ confetti-container 元素未找到');
+        return;
+      }
+
+      // 清空已有的彩带
+      container.innerHTML = '';
+
+      const colors = [
+        '#DC143C', // 中国红
+        '#D4AF37', // 金色
+        '#FF6B6B', // 粉红
+        '#4ECDC4', // 青色
+        '#FFD93D', // 黄色
+        '#FF8C42', // 橙色
+        '#6BCF7F', // 绿色
+        '#A78BFA', // 紫色
+        '#FF69B4', // 玫瑰红
+        '#FFA500', // 亮橙
+      ];
+
+      const confettiCount = 120; // 彩带数量（增加密度）
+      const baseDuration = 2000; // 基础持续时间（毫秒）
+
+      console.log(`🎊 正在创建 ${confettiCount} 个彩带...`);
+
+      for (let i = 0; i < confettiCount; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+
+        // 随机颜色
+        confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+
+        // 随机起始位置（横向）- 完全随机分布
+        const startX = Math.random() * 100;
+        confetti.style.left = startX + '%';
+
+        // 随机大小
+        const width = 5 + Math.random() * 10;
+        const height = width * (1.5 + Math.random() * 1.5);
+        confetti.style.width = width + 'px';
+        confetti.style.height = height + 'px';
+
+        // 随机起始高度（让它们不是同时从顶部出现）
+        const startY = -50 - Math.random() * 100;
+        confetti.style.top = startY + 'px';
+
+        // 随机延迟（更大的随机范围）
+        const delay = Math.random() * 600;
+        confetti.style.animationDelay = delay + 'ms';
+
+        // 随机下落速度（1.5秒到3秒）
+        const duration = baseDuration * (0.75 + Math.random() * 0.75);
+
+        // 随机横向漂移（更大的范围）
+        const drift = (Math.random() - 0.5) * 300;
+        confetti.style.setProperty('--drift', drift + 'px');
+
+        // 随机起始和结束旋转角度
+        const startRotation = Math.random() * 360;
+        const endRotation = startRotation + (Math.random() - 0.5) * 1080;
+        confetti.style.setProperty('--start-rotation', startRotation + 'deg');
+        confetti.style.setProperty('--end-rotation', endRotation + 'deg');
+
+        // 随机翻转效果
+        const flip = Math.random() * 720 - 360;
+        confetti.style.setProperty('--flip', flip + 'deg');
+
+        // 随机摆动幅度
+        const swing1 = (Math.random() - 0.5) * 60;
+        const swing2 = (Math.random() - 0.5) * 60;
+        confetti.style.setProperty('--swing-1', swing1 + 'px');
+        confetti.style.setProperty('--swing-2', swing2 + 'px');
+
+        // 随机3D旋转
+        const spinY = Math.random() * 1080 - 540;
+        const spinX = Math.random() * 720 - 360;
+        confetti.style.setProperty('--spin-y', spinY + 'deg');
+        confetti.style.setProperty('--spin-x', spinX + 'deg');
+
+        // 应用多重动画
+        confetti.style.animation = `
+          confettiFall ${duration}ms ease-in forwards,
+          confettiSwing ${duration * 0.3}ms ease-in-out infinite,
+          confettiSpin ${duration * 0.5}ms linear infinite
+        `;
+
+        container.appendChild(confetti);
+      }
+
+      console.log(`✅ 彩带创建完成，已添加 ${confettiCount} 个元素`);
+
+      // 动画结束后清理（取最长时间）
+      setTimeout(() => {
+        container.innerHTML = '';
+        console.log('🧹 彩带已清理');
+      }, baseDuration * 1.5 + 800);
+    }
+
+    // 暴露给全局，供游戏代码调用
+    window.createConfetti = createConfetti;
+    console.log('✅ window.createConfetti 已定义，类型:', typeof window.createConfetti);
+  </script>
 </body>
 </html>
